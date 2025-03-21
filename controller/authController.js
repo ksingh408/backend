@@ -19,12 +19,14 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
-
+  const user = await User.findOne({email});
+console.log(user);
   if (!user) return res.status(400).json({ message: "Invalid credentials" });
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+console.log(user.password);
+console.log(password);
+  const isMatch =  (password === user.password);
+  console.log(isMatch);
+  if (!isMatch) return res.status(400).json({ message: "Invalid ascredentials" });
 
   // Ensure single-device login
   const existingSessionId = await redisClient.get(`user:${user.id}`);
@@ -49,7 +51,7 @@ exports.logout = async (req, res) => {
 };
 
 exports.getUserDetails = async (req, res) => {
-  const user = await User.findById(req.session.userId).select("-password");
+  const user = await User.findById(req.session.userId).select("-passwordhash");
   if (!user) return res.status(404).json({ message: "User not found" });
 
   res.json(user);
